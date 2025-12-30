@@ -21,30 +21,101 @@ To use OpenAI models via MCP, you need a valid API key and sufficient credits.
     *   Click **"Create new secret key"**.
     *   **IMPORTANT:** Copy the key immediately; you won't be able to see it again.
 
-## 3. Setting Up System Environment Variables (Windows)
+## 3. Setting Up System Environment Variables
 
-Storing your API key in a system variable is the most secure and efficient way to manage it across different MCP servers.
+Storing your API key in a system variable is the most secure and efficient way to manage it across different MCP servers. Choose your operating system below:
 
-1.  Open the **Start Menu**, search for **"Edit the system environment variables"**, and press Enter.
-2.  Click the **Environment Variables...** button.
-3.  Under **User variables**, click **New...**.
-4.  Enter the following:
-    *   **Variable name:** `OPENAI_API_KEY`
-    *   **Variable value:** *[Your Secret API Key]*
-5.  Click **OK** on all windows to save.
-6.  **Restart Antigravity/Your IDE** to ensure the new variable is recognized.
+### Windows
+1. Open the **Start Menu**, search for **"Edit the system environment variables"**, and press Enter.
+2. Click the **Environment Variables...** button.
+3. Under **User variables**, click **New...**.
+4. Enter the following:
+   * **Variable name:** `OPENAI_API_KEY`
+   * **Variable value:** `[Your Secret API Key]`
+5. Click **OK** on all windows to save.
+6. **Restart Antigravity/Your IDE** to ensure the new variable is recognized.
+
+### macOS & Linux
+1. Open your terminal.
+2. Identify your shell (run `echo $SHELL`). Usually, it's `zsh` on macOS and `bash` or `zsh` on Linux.
+3. Open your configuration file in a text editor (e.g., `nano ~/.zshrc` or `nano ~/.bashrc`).
+4. Add the following line at the end of the file:
+   ```bash
+   export OPENAI_API_KEY='[Your Secret API Key]'
+   ```
+5. Save the file and exit (`Ctrl+O`, `Enter`, `Ctrl+X` for nano).
+6. Apply the changes by running:
+   ```bash
+   source ~/.zshrc  # or ~/.bashrc depending on your shell
+   ```
+7. **Restart Antigravity/Your IDE** to pick up the new environment variable.
 
 ## 4. Setting Up MCP Servers Step-by-Step
 
 Once your environment variable is set, you can configure the MCP server in Antigravity.
 
-1.  Open **Manage MCP servers** in Antigravity.
-2.  Click **Add Server** (or edit an existing one if you have a template).
-3.  Configure the server (e.g., `openai-gpt-4o` or `openai-gpt-5-2`):
-    *   Ensure the command points to the correct MCP bridge or script.
-    *   The server should be configured to read the `OPENAI_API_KEY` from your system variables.
-4.  Once added, ensure it is **Enabled**.
-5.  You should see the tools appearing (e.g., `chat-with-openai-gpt-4o-mini`).
+### Method A: Manual Setup
+1. Open **Manage MCP servers** in Antigravity.
+2. Click **Add Server**.
+3. Point to the `@pyroprompts/any-chat-completions-mcp` package using `npx`.
+4. Ensure the environment variables match your model (e.g., `AI_CHAT_MODEL=gpt-4o`).
+
+### Method B: Direct JSON Config (Recommended)
+For a faster setup, you can copy the JSON below directly into your raw configuration file. 
+
+1. In the **Manage MCP servers** view, click **View raw config** (the file icon at the top right).
+2. Paste the following into the `mcpServers` object:
+
+```json
+{
+  "mcpServers": {
+    "openai-gpt-4-1": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@pyroprompts/any-chat-completions-mcp"
+      ],
+      "env": {
+        "AI_CHAT_KEY": "${OPENAI_API_KEY}",
+        "AI_CHAT_NAME": "OpenAI-GPT-4-1",
+        "AI_CHAT_MODEL": "gpt-4.1",
+        "AI_CHAT_BASE_URL": "https://api.openai.com/v1"
+      }
+    },
+    "openai-gpt-4o-mini": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@pyroprompts/any-chat-completions-mcp"
+      ],
+      "env": {
+        "AI_CHAT_KEY": "${OPENAI_API_KEY}",
+        "AI_CHAT_NAME": "OpenAI-GPT-4o-mini",
+        "AI_CHAT_MODEL": "gpt-4o-mini",
+        "AI_CHAT_BASE_URL": "https://api.openai.com/v1"
+      },
+      "disabledTools": []
+    },
+    "openai-gpt-5-2": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@pyroprompts/any-chat-completions-mcp"
+      ],
+      "env": {
+        "AI_CHAT_KEY": "${OPENAI_API_KEY}",
+        "AI_CHAT_NAME": "OpenAI-GPT-5-2",
+        "AI_CHAT_MODEL": "gpt-5.2",
+        "AI_CHAT_BASE_URL": "https://api.openai.com/v1"
+      },
+      "disabledTools": []
+    }
+  }
+}
+```
+
+> [!NOTE]
+> On macOS or Linux, you should change `"command": "npx.cmd"` to `"command": "npx"`.
 
 ## 5. How to Use the OpenAI Models in Chat
 
